@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/bits"
 	"net"
 	"net/netip"
 	"runtime/debug"
@@ -154,6 +155,7 @@ func (b *MobileBackend) FindJunk(ctx context.Context, input core.Account, scan c
 	scan.Protocol = core.ProtocolAWG
 	scan.InnerProtocol = ""
 	scan.ThroughEndpoint = ""
+	scan.Telegram, scan.TelegramOnly = false, false
 	scan.SamplePerSubnet = positiveOr(scan.SamplePerSubnet, findJunkSample)
 	scan.TunnelPingCount = max(scan.TunnelPingCount, durabilityPings)
 	opts, err := mobileScanOptions(scan)
@@ -247,6 +249,7 @@ func (b *MobileBackend) FindSNI(ctx context.Context, input core.Account, scan co
 	}
 	scan.InnerProtocol = ""
 	scan.ThroughEndpoint = ""
+	scan.Telegram, scan.TelegramOnly = false, false
 	scan.SamplePerSubnet = findSNISample
 	scan.TunnelPingCount = max(scan.TunnelPingCount, durabilityPings)
 	opts, err := mobileScanOptions(scan)
@@ -317,6 +320,7 @@ func (b *MobileBackend) StartSocks(ctx context.Context, input core.Account, sock
 	defer b.mu.Unlock()
 
 	scan := socks.Scan
+	scan.Telegram, scan.TelegramOnly = false, false
 	if socks.Protocol != "" {
 		scan.Protocol = socks.Protocol
 	}
@@ -496,6 +500,8 @@ func mobileScanOptions(scan core.ScanOptions) (options, error) {
 		pingTarget:     strings.TrimSpace(scan.PingTarget),
 		plain:          true,
 	}
+	opts.tgOnly = scan.TelegramOnly
+	opts.tg = scan.Telegram || scan.TelegramOnly
 	if !opts.full && opts.perSubnet <= 0 {
 		opts.perSubnet = 5
 	}
@@ -562,7 +568,7 @@ func mobileScanOptions(scan core.ScanOptions) (options, error) {
 	opts.countries = normalizedCodes(scan.IncludeCountries)
 	opts.dropColos = normalizedCodes(scan.ExcludeNodes)
 	opts.dropCountries = normalizedCodes(scan.ExcludeCountries)
-	if (opts.proto == protoMASQUE || opts.proto == protoMASQUEH2) && filtered(opts) {
+	if (opts.proto == protoMASQUE || opts.proto == protoMASQUEH2) && geoFiltered(opts) {
 		return options{}, mobileFailure("unsupported_filter", errors.New("node and country filters do not apply to MASQUE"), false)
 	}
 	if scan.AWGJunkCount != 0 {
@@ -624,6 +630,7 @@ func resetMobileState() {
 	pools = poolsV4
 	warpPorts = append([]int(nil), primaryWarpPorts...)
 	bestBy = bestKeyPing
+	tgSort = false
 	sweepingPorts = false
 	pingTarget = tunnelDNS
 	pingAddr.Store(nil)
@@ -667,7 +674,15 @@ func mobileEndpoint(result endpointResult) core.EndpointResult {
 		SpeedMbps:      result.speed,
 		Working:        result.ok,
 		Durable:        result.durable,
+		Telegram:       telegramStatus(result.tgSeen, result.tgOK, result.tgDCs, result.tg),
 	}
+}
+
+func telegramStatus(seen, ok bool, reached uint8, rtt time.Duration) *core.TelegramStatus {
+	if !seen {
+		return nil
+	}
+	return &core.TelegramStatus{OK: ok, DCsReached: bits.OnesCount8(reached), DCsTotal: len(telegramDCs), RTTMS: durationMilliseconds(rtt)}
 }
 
 func durationMilliseconds(value time.Duration) float64 {
@@ -787,6 +802,7 @@ func (e *mobileEmitter) Emit(message tea.Msg) {
 			LossPercent:    float64(value.loss) * 100,
 			Working:        true,
 			Durable:        !value.torn,
+			Telegram:       telegramStatus(value.tgSeen, value.tgOK, value.tgDCs, value.tg),
 		}
 		event.Type = "endpoint"
 		event.Endpoint = &endpoint

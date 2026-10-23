@@ -1,24 +1,18 @@
 # Third-party notices
 
-WARPSCOUT for Android includes or builds against third-party software. The corresponding source repositories contain the complete license texts and copyright notices.
+WarpScout Web includes or builds against third-party software. The corresponding source repositories contain the complete license texts and copyright notices.
 
 | Component | Source | License |
 | --- | --- | --- |
-| WARPSCOUT CLI | https://github.com/vernette/warpscout | MIT |
+| WARPSCOUT (original engine and CLI), copyright (c) 2026 Nikita S. | https://github.com/vernette/warpscout | MIT |
+| WARPSCOUT for Android (`core`, `mobileapi`, mobile backend; base of this repository) | https://github.com/openwarpkit/warpscout-android | MIT |
 | amneziawg-go | https://github.com/amnezia-vpn/amneziawg-go | MIT |
 | usque | https://github.com/Diniboy1123/usque | MIT |
-| Go Mobile | https://github.com/golang/mobile | BSD 3-Clause |
 | WireGuard Go | https://github.com/WireGuard/wireguard-go | MIT |
 | gVisor | https://github.com/google/gvisor | Apache License 2.0 |
 | Bubble Tea | https://github.com/charmbracelet/bubbletea | MIT |
 | Lip Gloss | https://github.com/charmbracelet/lipgloss | MIT |
 | Cobra | https://github.com/spf13/cobra | Apache License 2.0 |
-| Kotlin | https://github.com/JetBrains/kotlin | Apache License 2.0 |
-| Kotlin Coroutines | https://github.com/Kotlin/kotlinx.coroutines | Apache License 2.0 |
-| Jetpack Compose | https://github.com/androidx/androidx | Apache License 2.0 |
-| AndroidX Navigation | https://github.com/androidx/androidx | Apache License 2.0 |
-| AndroidX Room | https://github.com/androidx/androidx | Apache License 2.0 |
-| AndroidX DataStore | https://github.com/androidx/androidx | Apache License 2.0 |
-| Dagger and Hilt | https://github.com/google/dagger | Apache License 2.0 |
+| WARPSCOUT-TG (Telegram reachability check, `internal/warpscout/telegram.go`) | https://github.com/niklzz/warpscout-tg | MIT |
 
-The original WARPSCOUT credits are preserved in both README files. Build artifacts must retain notices required by each dependency license.
+The original WARPSCOUT credits are preserved in README.md. Build artifacts must retain notices required by each dependency license.

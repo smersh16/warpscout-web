@@ -1,53 +1,38 @@
-# Upstream synchronization
+# Provenance and synchronization
 
-## Repositories
+This repository is built from three open source projects (all MIT). The Go module path stays `github.com/vernette/warpscout`
+on purpose: it keeps imports identical to the sources, so their files can be compared and merged without rewriting.
 
-- Origin: https://github.com/openwarpkit/warpscout-android
-- Upstream: https://github.com/vernette/warpscout
+## Sources
 
-## Current base
+| Project | Role here | Recorded base |
+| --- | --- | --- |
+| https://github.com/vernette/warpscout | original engine, `internal/warpscout` (package `main` renamed to `warpscout`) | tag `v0.16.0`, commit `db4ac9ebae8d942191b8e8351f2c3a37a375bd66` |
+| https://github.com/openwarpkit/warpscout-android | base of this repository: `core`, `mobileapi`, `mobile_backend.go`, `scan_i1.go`, `junk_i1.go` | imported unchanged as the first commit of this repository |
+| https://github.com/niklzz/warpscout-tg | Telegram reachability check, `internal/warpscout/telegram.go` | `master`, ported by hand (see below) |
 
-- Upstream tag: `v0.16.0`
-- Upstream commit: `db4ac9ebae8d942191b8e8351f2c3a37a375bd66`
-- Upstream branch: `master`
+The first commit of this repository is the warpscout-android tree exactly as received. Everything after it is the work of this repository.
 
-The current base matches upstream tag `v0.16.0`.
+## What differs from the sources
 
-## Branch roles
+- **vernette/warpscout.** After `v0.16.0`, `internal/warpscout/main.go` was aligned with upstream master: `isMihomo` for config-type
+  checks, the `-best-by speed` notice and the documented TUI fallback. Apart from the package name, `main.go` matches upstream.
+- **warpscout-android.** The Android app (`android/`), its CI/release workflows and design documents are removed. `core` gained
+  `ScanSpec`/`ExpertOptions` (preset rules resolved on the server) and the Telegram options/result; `mobile_backend.go` passes them through.
+- **warpscout-tg.** That fork is based on an older upstream, so it cannot be merged. The probe (`telegram.go`) is copied; the integration is
+  rewritten against the current code: `endpointResult` / `foundMsg` carry the result, `lessByLossRTT` ranks reachability first,
+  `filterByTelegram` implements "only with Telegram". The flags `-tg` / `-tg-only` and the CLI table columns are not ported.
+- **New:** `cmd/warpscout-web`, `internal/webserver`, `deploy/`, `Dockerfile.web`, `docker-compose.yml`.
 
-- `android`: default branch for the Android application and releases.
-- `main`: upstream synchronization branch that tracks the original CLI code line.
-- `chore/sync-upstream-<version>`: temporary integration branch created from `android`.
-
-Android-specific changes are not committed directly to `main`.
-
-## Update procedure
-
-1. Fetch tags and `upstream/master`.
-2. Update `main` from `upstream/master` without adding Android-specific changes.
-3. Create `chore/sync-upstream-<version>` from `android`.
-4. Merge `main` into the synchronization branch with a merge commit. Do not rebase or squash upstream history.
-5. Resolve conflicts without changing the base relay behavior or the Android application ID.
-6. Update the tag and commit in this file, Android build defaults, and release metadata.
-7. Run `go test ./...`.
-8. Build the Go Mobile AAR.
-9. Run Android unit tests, lint, Room schema validation, and the emulator smoke test.
-10. Merge the synchronization branch into `android` only after Go and Android CI pass.
-
-## Automated validation
-
-Run the local contract check before building:
+## Updating from vernette/warpscout
 
 ```sh
-node scripts/check-upstream-sync.mjs
+git remote add upstream https://github.com/vernette/warpscout.git
+git fetch upstream --tags
+git diff <recorded-tag> upstream/master -- '*.go'     # what changed upstream since the recorded base
 ```
 
-For a synchronization branch, compare the recorded commit with the fetched upstream head:
-
-```sh
-node scripts/check-upstream-sync.mjs --require-ref upstream/master
-```
-
-Android CI performs the structural check on every change. Pull requests whose branch name starts with `chore/sync-upstream-` are also compared with the current `upstream/master` commit. The check rejects unexpected root Go files, stale upstream metadata, a missing mobile backend, forbidden process exits across the mobile boundary, and an upstream commit outside the current history.
-
-CLI releases continue to use `v*` tags. Android releases use `android-v*` tags. CLI release workflows must exclude `android-v*`.
+Upstream keeps everything in `package main` at the repository root; here the same files live in `internal/warpscout` as
+`package warpscout`, with `func Main()` instead of `func main()` in `cli.go`. Port changes file by file, keeping these local differences:
+`mobile_backend.go`, `scan_i1.go`, `junk_i1.go`, `telegram.go`, the Telegram fields in `report.go`/`tui.go`/`main.go`,
+and the `findjunk.go` refactor. Then run `go test ./...` and update the recorded tag and commit above.

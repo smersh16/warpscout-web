@@ -37,6 +37,10 @@ type (
 		exit     string
 		colo     string
 		torn     bool
+		tg       time.Duration // slowest Telegram DC answer, valid when tgOK
+		tgDCs    uint8         // mask of telegramDCs that answered
+		tgOK     bool
+		tgSeen   bool
 	}
 	speedMsg struct {
 		endpoint string

@@ -70,6 +70,20 @@ type ScanOptions struct {
 	PingTarget          string   `json:"pingTarget,omitempty"`
 	ThroughEndpoint     string   `json:"throughEndpoint,omitempty"`
 	ConfigurationFormat string   `json:"configurationFormat,omitempty"`
+	// Telegram dials every Telegram MTProto data centre through each working
+	// tunnel; TelegramOnly additionally drops endpoints that do not reach all of
+	// them (it implies Telegram) and ranks the rest by Telegram response time.
+	Telegram     bool `json:"telegram,omitempty"`
+	TelegramOnly bool `json:"telegramOnly,omitempty"`
+}
+
+// TelegramStatus is the outcome of the Telegram check for one endpoint. OK
+// means every data centre answered a real MTProto request through the tunnel.
+type TelegramStatus struct {
+	OK         bool    `json:"ok"`
+	DCsReached int     `json:"dcsReached"`
+	DCsTotal   int     `json:"dcsTotal"`
+	RTTMS      float64 `json:"rttMs,omitempty"` // slowest DC answer, valid when OK
 }
 
 type EndpointResult struct {
@@ -85,6 +99,8 @@ type EndpointResult struct {
 	SpeedMbps      float64 `json:"speedMbps,omitempty"`
 	Working        bool    `json:"working"`
 	Durable        bool    `json:"durable"`
+	// Telegram is nil when the check was not requested.
+	Telegram *TelegramStatus `json:"telegram,omitempty"`
 }
 
 type ScanReport struct {

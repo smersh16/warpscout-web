@@ -58,6 +58,8 @@ type options struct {
 	i1Explicit     bool
 	tunPingCheck   bool
 	speed          bool
+	tg             bool // check Telegram DCs through each tunnel (web/mobile)
+	tgOnly         bool // keep only endpoints that reached every Telegram DC
 	genJunk        bool
 	wantMeta       bool
 	ipv6           bool

@@ -1,0 +1,21 @@
+# WarpScout web UI.  Build from this repository:  docker compose up -d --build
+# Set the token in a .env file next to this one:  WARPSCOUT_TOKEN=long-random-string
+services:
+  warpscout:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    image: warpscout-web:latest
+    container_name: warpscout
+    restart: unless-stopped
+    ports:
+      - "${WARPSCOUT_BIND:-127.0.0.1}:8787:8787"
+    environment:
+      WARPSCOUT_TOKEN: "${WARPSCOUT_TOKEN:-}"
+      # behind a reverse proxy on the same host, set to 1
+      WARPSCOUT_TRUST_PROXY: "${WARPSCOUT_TRUST_PROXY:-0}"
+    volumes:
+      - warpscout-data:/data
+
+volumes:
+  warpscout-data:

@@ -1,0 +1,32 @@
+[Unit]
+Description=WarpScout web UI
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=warpscout
+Group=warpscout
+EnvironmentFile=-/etc/warpscout-web.env
+ExecStart=/usr/local/bin/warpscout-web
+Restart=on-failure
+RestartSec=3
+StateDirectory=warpscout-web
+Environment=WARPSCOUT_DATA=/var/lib/warpscout-web
+
+# hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+[Install]
+WantedBy=multi-user.target

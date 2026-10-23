@@ -33,6 +33,7 @@ func setupScan(opts options) (protoRun, []netip.Addr, error) {
 	if len(opts.targets) > 0 {
 		pools = opts.targets
 	}
+	tgSort = opts.tgOnly
 	// With -interface, interfaceAddr is the authoritative family check (per-interface,
 	// precise error); the host-wide check only runs without it.
 	if opts.iface != "" {
@@ -187,6 +188,9 @@ func runScanCmd(ctx context.Context, opts options) error {
 	}
 
 	if (opts.speed || opts.bestBy == bestKeySpeed) && showsSpeed(opts) {
+		if !opts.speed {
+			fmt.Fprintln(os.Stderr, errPal.dim("\n-best-by speed ranks by throughput, so the speedtest phase runs even without -speed"))
+		}
 		runWithUI(opts, cancel, false, "", "q to skip the rest", func(emit emitter) {
 			measureSpeed(ctx, ph, time.Duration(opts.timeoutSec)*time.Second, emit)
 		})
@@ -319,11 +323,20 @@ func anyEndpoint(ph phaseResult) bool {
 	return false
 }
 
-func filtered(opts options) bool {
+// geoFiltered is the node/country filter on its own: MASQUE rejects it, but
+// has no objection to -tg-only.
+func geoFiltered(opts options) bool {
 	return len(opts.colos)+len(opts.countries)+len(opts.dropColos)+len(opts.dropCountries) > 0
 }
 
+func filtered(opts options) bool {
+	return opts.tgOnly || geoFiltered(opts)
+}
+
 func applyFilters(ph phaseResult, opts options) phaseResult {
+	if opts.tgOnly {
+		ph = filterByTelegram(ph)
+	}
 	for _, f := range []struct {
 		list []string
 		want bool
@@ -342,6 +355,9 @@ func applyFilters(ph phaseResult, opts options) phaseResult {
 }
 
 func noEndpointMsg(opts options) string {
+	if opts.tgOnly {
+		return "no working endpoint reached Telegram - turn off \"only with Telegram\" to see what the scan did find"
+	}
 	var filters []string
 	if len(opts.colos) > 0 {
 		filters = append(filters, "node "+strings.Join(opts.colos, ", "))
@@ -397,12 +413,12 @@ func writeConfFile(opts options, ph phaseResult) error {
 	fmt.Fprintln(os.Stderr, errPal.dim(fmt.Sprintf("\n%s config for %s written to %s", ph.run.name, best.endpoint, opts.conf)))
 	if outer != nil {
 		note := fmt.Sprintf("  it holds both tunnels of the chain (outer %s) - split it in two before use", outer.label)
-		if opts.confType == confTypeMihomo {
+		if isMihomo(opts.confType) {
 			note = fmt.Sprintf("  it chains through %s itself (dialer-proxy)", outer.label)
 		}
 		fmt.Fprintln(os.Stderr, errPal.dim(note))
 	}
-	if ph.run.isMASQUE() && opts.confType != confTypeMihomo {
+	if ph.run.isMASQUE() && !isMihomo(opts.confType) {
 		if _, port, err := net.SplitHostPort(best.endpoint); err == nil {
 			h2 := ""
 			if ph.run.isH2() {
@@ -461,6 +477,8 @@ func runWithUI(opts options, cancel context.CancelFunc, ping bool, header, quitH
 	p := tea.NewProgram(m, tea.WithOutput(os.Stderr))
 	defer enableVirtualTerminal()
 
+	// A terminal the TUI cannot drive is not a reason to fail the run.
+	// Fall back to the plain emitter and keep scanning.
 	var uiFailed atomic.Bool
 	emit := func(msg tea.Msg) {
 		if uiFailed.Load() {
@@ -473,6 +491,8 @@ func runWithUI(opts options, cancel context.CancelFunc, ping bool, header, quitH
 	workDone := make(chan struct{})
 	go func() {
 		work(emit)
+		// Only doneMsg quits the program, and an error path returns without one:
+		// without this the TUI spins on forever under the failure it just printed.
 		emit(doneMsg{})
 		close(workDone)
 	}()
@@ -535,6 +555,14 @@ func runScan(ctx context.Context, opts options, run protoRun, ips []netip.Addr, 
 			if pings > 0 {
 				r.tunPing, r.loss, r.measured, r.durable = rtt, loss, true, !torn
 			}
+			// The tunnel is still up and still pointed at this endpoint - the peer
+			// only changes on the next handshake - so Telegram is dialled over the
+			// very connection the row is about.
+			if opts.tg {
+				r.tgSeen = true
+				r.tg, r.tgDCs = tn.stack().telegramRTT(ctx, timeout)
+				r.tgOK = r.tgDCs == allDCs
+			}
 			// Host ICMP measures the direct path, which a nested run does not take;
 			// from inside the outer tunnel the same echo walks the real one.
 			if outer == nil {
@@ -544,7 +572,7 @@ func runScan(ctx context.Context, opts options, run protoRun, ips []netip.Addr, 
 			} else if hrtt, pok := outer.pingTo(ip, timeout); pok {
 				r.epPing = hrtt
 			}
-			found := foundMsg{endpoint: endpoint, epPing: r.epPing, tunPing: r.tunPing, loss: r.loss, measured: r.measured, torn: !r.durable}
+			found := foundMsg{endpoint: endpoint, epPing: r.epPing, tunPing: r.tunPing, loss: r.loss, measured: r.measured, tg: r.tg, tgDCs: r.tgDCs, tgOK: r.tgOK, tgSeen: r.tgSeen, torn: !r.durable}
 			if opts.wantMeta {
 				found.exit, found.colo = exitRegion(t), exitColo(t)
 			}

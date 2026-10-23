@@ -1,14 +1,18 @@
+# built binaries
 /warpscout
-/warpscout-account.json
-/warpscout-report-*.txt
+/warpscout-web
+/ws
 
-android/.gradle/
-android/.kotlin/
-android/local.properties
-android/app/build/
-android/build/
-android/app/libs/*.aar
-android/app/libs/warpscout-sources.jar
-!android/app/libs/.gitkeep
-.impeccable/
+# WARP account, access token and scan data must never be committed
+warpscout-account.json
+account.json
+token
+.env
+/data/
+/warpscout-data/
+warpscout-report-*.txt
+
+# editor / tooling
+.idea/
+.vscode/
 .cache/

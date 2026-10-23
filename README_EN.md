@@ -1,159 +1,108 @@
-<p align="center">
-  <img src="android/app/src/main/res/drawable-nodpi/warpscout_cloud.png" width="200" alt="WarpScout cloud">
-</p>
+# WarpScout Web
 
-<h1 align="center">WarpScout for Android</h1>
+A web UI for finding working Cloudflare WARP endpoints. It runs on an Ubuntu server or in Docker and is driven from a browser.
+Scanning happens on the server, where the WARP account and the scan history are stored. It can also check whether Telegram
+works through a given endpoint.
 
-<p align="center">Local WARP endpoint scanning and configuration tools for Android.</p>
+[Русская версия](README.md)
 
-<p align="center">
-  <a href="https://github.com/openwarpkit/warpscout-android/actions/workflows/android-ci.yaml"><img src="https://img.shields.io/github/actions/workflow/status/openwarpkit/warpscout-android/android-ci.yaml?branch=android&amp;label=CI" alt="CI"></a>
-  <a href="https://github.com/openwarpkit/warpscout-android/releases/latest"><img src="https://img.shields.io/github/v/release/openwarpkit/warpscout-android?filter=android-v*&amp;label=Release" alt="Release"></a>
-  <a href="https://github.com/openwarpkit/warpscout-android/releases"><img src="https://img.shields.io/github/downloads/openwarpkit/warpscout-android/total" alt="Downloads"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
-</p>
-
-<p align="center"><strong><a href="README.md">Русская версия</a></strong></p>
-
-## About
-
-WARPSCOUT for Android is a native Android interface under development for local WARP account registration, endpoint scanning, discovery tools, configuration export, and loopback SOCKS operation.
-
-Scanning runs on the Android device. Accounts and scan results are not stored on an OpenWarpKit server.
+> An independent project built on other authors' open source code (see [Sources](#sources-and-credits)).
+> It is not an official release and is not affiliated with the authors of the original projects.
 
 ## Features
 
-The first Android release targets:
+- Standard, Durable and Full presets; WireGuard, AmneziaWG, MASQUE H3 and MASQUE H2; IPv4/IPv6.
+- Country and node filters (including exclusions), custom ranges, MTU, DNS, speed test, port sweep, WARP-in-WARP.
+- AWG junk / I1 and MASQUE SNI finders; results are saved and can be applied to a scan with one click.
+- **Telegram check:** a real MTProto request is sent to all 5 Telegram data centres through every tunnel. An endpoint counts only
+  when all five answer, and those are ranked first. "Only with Telegram" keeps just them.
+- Live results table, config export (WireGuard, AmneziaWG, usque, Mihomo), text report, CSV, copy-best-address.
+- Scan history that restores every form value.
+- SOCKS5 proxy to test one endpoint (listens on the server's loopback only).
+- A scan keeps running on the server if you close the tab; progress and results are there when you return.
+- Russian and English UI.
 
-- Standard, Durable, and Full scan presets
-- WireGuard, AmneziaWG, MASQUE H3, and MASQUE H2
-- IPv4, IPv6, node filters, country filters, custom targets, MTU, DNS, and speed tests
-- Best endpoint selection by ping or speed, open/all port sweeping, and a custom in-tunnel ping target
-- AWG junk and I1 discovery
-- MASQUE SNI discovery
-- WARP-in-WARP scans
-- Scan history stored on the device
-- Display, copy, and one-tap reuse for all completed scan settings
-- WireGuard, AmneziaWG, usque, Mihomo, plain report, and best endpoint export
-- Loopback-only SOCKS server
-- English and Russian interface
-- Foreground operation service with progress and stop action
+## Quick start
 
-## Screenshots
+### Docker
 
-| Onboarding | Scan |
-| --- | --- |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/dark/onboarding.png"><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/light/onboarding.png"><img src="docs/screenshots/light/onboarding.png" alt="Account registration screen"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/dark/scan.png"><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/light/scan.png"><img src="docs/screenshots/light/scan.png" alt="Standard scan screen"></picture> |
-| History | Tools |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/dark/history.png"><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/light/history.png"><img src="docs/screenshots/light/history.png" alt="Scan history"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/dark/tools.png"><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/light/tools.png"><img src="docs/screenshots/light/tools.png" alt="Discovery and SOCKS tools"></picture> |
-| Settings | Expert mode |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/dark/settings.png"><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/light/settings.png"><img src="docs/screenshots/light/settings.png" alt="Application settings"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/dark/expert.png"><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/light/expert.png"><img src="docs/screenshots/light/expert.png" alt="Expert scan options"></picture> |
-| Scan in progress | Report table: endpoints and ping |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/dark/progress.png"><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/light/progress.png"><img src="docs/screenshots/light/progress.png" alt="Active endpoint scan progress"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/dark/results.png"><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/light/results.png"><img src="docs/screenshots/light/results.png" alt="AWG report endpoints and ping"></picture> |
-| Report table: regions and nodes | Best endpoint |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/dark/results-nodes.png"><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/light/results-nodes.png"><img src="docs/screenshots/light/results-nodes.png" alt="AWG report regions, nodes, and locations"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/dark/best-endpoint.png"><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/light/best-endpoint.png"><img src="docs/screenshots/light/best-endpoint.png" alt="Best endpoint details"></picture> |
-
-## Installation
-
-Download an APK from [Android releases](https://github.com/openwarpkit/warpscout-android/releases). Choose the file for the device ABI or use the universal APK.
-
-Android releases use tags in the form `android-vMAJOR.MINOR.PATCH`. CLI tags use the upstream `vMAJOR.MINOR.PATCH` format.
-
-## Supported Android versions
-
-| Item | Support |
-| --- | --- |
-| Minimum Android version | Android 8.0, API 26 |
-| Target Android version | Android 17, API 37 |
-| arm64-v8a | Supported |
-| armeabi-v7a | Supported |
-| x86_64 | Supported |
-
-## Permissions and privacy
-
-The application uses network access for registration, scanning, update checks, and SOCKS traffic. A foreground service keeps an active operation running when the interface is not visible. Android 13 and later may request notification permission for foreground progress.
-
-Account JSON is encrypted with AES-GCM using a key held by Android Keystore. Configuration exports are generated only on request and shared from application-private cache. Secrets are not written to Room, DataStore, application logs, or error reports. Scan history contains operation parameters and results without account credentials.
-
-The update checker reads only releases from `openwarpkit/warpscout-android` whose tags start with `android-v`.
-
-## Build from source
-
-Required tools:
-
-| Tool | Version |
-| --- | --- |
-| Go | Version from `go.mod` |
-| JDK | 17 |
-| Gradle | 9.5.0 |
-| Android Gradle Plugin | 9.3.0 |
-| Android SDK | API 37 |
-| Android NDK | 28.2.13676358 |
-
-Build and test the Go code:
-
-```sh
-go test ./...
+```bash
+git clone <this repository URL> warpscout-web && cd warpscout-web
+echo "WARPSCOUT_TOKEN=$(openssl rand -hex 24)" > .env
+docker compose up -d --build
 ```
 
-Build the Go Mobile AAR on Linux or macOS:
+Open `http://127.0.0.1:8787/` and enter the token from `.env`. Data lives in the `warpscout-data` volume.
+The port is published on `127.0.0.1` only; for access from another machine use an SSH tunnel
+(`ssh -L 8787:127.0.0.1:8787 user@server`) or an HTTPS reverse proxy.
 
-```sh
-./scripts/build-mobile.sh
+### Ubuntu (systemd)
+
+```bash
+sudo ./deploy/ubuntu/install.sh
 ```
 
-Build the Go Mobile AAR on Windows:
+Installs Go, builds the binary and creates the `warpscout-web` service. Details, HTTPS and security settings:
+[deploy/ubuntu/README.md](deploy/ubuntu/README.md) (Russian).
 
-```powershell
-./scripts/build-mobile.ps1
+### Try it without a network or an account
+
+```bash
+go run ./cmd/warpscout-web -listen 127.0.0.1:8787 -no-auth -demo
 ```
 
-Build the debug APK:
+Demo mode replaces the core with a simulation so you can look at the UI.
 
-```sh
-./android/gradlew -p android :app:assembleDebug
+## Security
+
+Listens on `127.0.0.1` by default; token authentication, server-side sessions valid for 7 days, per-IP lockout against token
+guessing, token re-entry to export the account (it holds the private key), CSRF protection. Over plain HTTP the token travels
+unencrypted, so put HTTPS in front for any remote access.
+
+## Architecture
+
+```
+browser  ⇄  cmd/warpscout-web + internal/webserver   HTTP, SSE, UI, sessions, storage
+               ⇄  mobileapi.Start / Cancel            the core's JSON protocol (same as the Android app's)
+                     ⇄  core.Engine, core.ScanSpec     operations, presets, one operation at a time
+                           ⇄  internal/warpscout        the WARPSCOUT scan engine + Telegram check
 ```
 
-The AAR build targets `android/arm64`, `android/arm`, and `android/amd64`. The Android project packages them as `arm64-v8a`, `armeabi-v7a`, and `x86_64`.
+Development: `go test ./...`. How the code is derived and how to sync it: [UPSTREAM.md](UPSTREAM.md).
 
-## Release process
+## Sources and credits
 
-Push a tag such as `android-v1.0.0`. The Android release workflow derives `versionName` and `versionCode`, builds the AAR and four APK variants, signs the APKs, verifies signatures and native libraries, runs an x86_64 emulator smoke test, generates checksums and provenance, and publishes the GitHub Release.
+Built on open source code. All three sources are MIT licensed and their copyright notices are kept in [LICENSE](LICENSE)
+and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-The release signing key is supplied through GitHub Secrets. A manual workflow run builds an unsigned universal APK and does not create a release.
+| Project | Author | What was taken | Where in this repository |
+| --- | --- | --- | --- |
+| [vernette/warpscout](https://github.com/vernette/warpscout) | Nikita S. (@vernette) | The original engine: WARP account registration, scanning, tunnels, junk/SNI finders, config generation, SOCKS | `internal/warpscout` (v0.16.0 base plus selected fixes from master), `main.go` |
+| [openwarpkit/warpscout-android](https://github.com/openwarpkit/warpscout-android) | OpenWarpKit | The base of this repository: a multi-client wrapper around the engine (JSON protocol, `core`, `mobileapi`, mobile backend, automatic I1) | `core`, `mobileapi`, `internal/warpscout/mobile_backend.go`, `scan_i1.go`, `junk_i1.go` |
+| [niklzz/warpscout-tg](https://github.com/niklzz/warpscout-tg) | niklzz | The idea and code of the Telegram reachability check (MTProto `req_pq_multi` to every DC) | `internal/warpscout/telegram.go` |
 
-## Upstream and attribution
+Also used: [amneziawg-go](https://github.com/amnezia-vpn/amneziawg-go), [usque](https://github.com/Diniboy1123/usque),
+[WireGuard Go](https://github.com/WireGuard/wireguard-go), [gVisor](https://github.com/google/gvisor),
+[Bubble Tea](https://github.com/charmbracelet/bubbletea), [Lip Gloss](https://github.com/charmbracelet/lipgloss),
+[quic-go](https://github.com/quic-go/quic-go) and other modules from [go.mod](go.mod); the full list with licenses is in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-WARPSCOUT for Android is an independent OpenWarpKit project based on the WARPSCOUT CLI.
+### What changed relative to the sources
 
-Original project: https://github.com/vernette/warpscout
+- Added: the web server and UI, server-side sessions and login protection, history and account storage, Docker and Ubuntu deployment.
+- `core`: `ScanSpec` and `Resolve` (preset rules on the server, one source of truth), Telegram options and result.
+- `internal/warpscout`: the Telegram check ported from warpscout-tg onto a newer base (that fork is built on an older version, so it was
+  ported by hand), Telegram-aware result ordering, the "only with Telegram" filter, selected fixes from WARPSCOUT master.
+- Not carried over: the Android app, the CLI flags `-tg` and `-tg-only` and the Telegram columns in the CLI tables.
 
-Original author: Nikita S. (@vernette)
+The Android app this wrapper comes from lives in [openwarpkit/warpscout-android](https://github.com/openwarpkit/warpscout-android);
+get console binaries of WARPSCOUT from the [original releases](https://github.com/vernette/warpscout/releases).
 
-This repository is not an official Android release maintained by the upstream author.
+## Responsible use
 
-The repository preserves the original Git history and license. Upstream synchronization rules and the current base revision are recorded in [UPSTREAM.md](UPSTREAM.md).
-
-## Credits
-
-OpenWarpKit maintains the Android application and Android-specific changes. [Nikita S. (@vernette)](https://github.com/vernette) is the author of the original WARPSCOUT CLI.
-
-Original WARPSCOUT credits are preserved with direct links:
-
-- [Cloudflare WARP](https://one.one.one.one/)
-- [puzige/CloudflareWarpSpeedTest](https://github.com/puzige/CloudflareWarpSpeedTest)
-- ampetelin/warp-endpoint-checker (original repository unavailable)
-- [TheyCallMeSecond/WARP-Endpoint-IP](https://github.com/TheyCallMeSecond/WARP-Endpoint-IP)
-- [SagePtr/mini_quic_generator](https://github.com/SagePtr/mini_quic_generator)
-- [Diniboy1123/usque](https://github.com/Diniboy1123/usque)
-- [nellimonix/base-relay](https://github.com/nellimonix/base-relay)
-- [amnezia-vpn/amneziawg-go](https://github.com/amnezia-vpn/amneziawg-go)
-- [charmbracelet/bubbletea](https://github.com/charmbracelet/bubbletea)
-
-Android integration uses [Go Mobile](https://pkg.go.dev/golang.org/x/mobile/cmd/gomobile), [Jetpack Compose](https://developer.android.com/compose), [Hilt](https://developer.android.com/training/dependency-injection/hilt-android), [Room](https://developer.android.com/training/data-storage/room), and [DataStore](https://developer.android.com/topic/libraries/architecture/datastore).
-
-See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for distributed dependency notices.
+This tool selects Cloudflare WARP endpoints. Use it in accordance with Cloudflare's terms and the laws of your country.
 
 ## License
 
-The project is distributed under the MIT License. The original copyright notice for Nikita S. is preserved in [LICENSE](LICENSE). OpenWarpKit authors the Android application and changes, not the original CLI.
+MIT, see [LICENSE](LICENSE). The copyright notices of the source projects are kept; this repository's own additions are
+distributed under the same terms.

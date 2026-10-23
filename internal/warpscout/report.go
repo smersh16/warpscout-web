@@ -58,6 +58,10 @@ type endpointResult struct {
 	measured bool          // tunPing/loss were sampled (-tun-ping)
 	ok       bool
 	durable  bool
+	tg       time.Duration // in-tunnel RTT to the slowest Telegram DC, valid only when tgOK
+	tgDCs    uint8         // mask of telegramDCs that answered through the tunnel
+	tgOK     bool          // every Telegram DC answered (tgDCs == allDCs)
+	tgSeen   bool          // Telegram was checked for this endpoint
 }
 
 func (r endpointResult) sortPing() time.Duration {
@@ -263,9 +267,26 @@ var bestKeys = []string{bestKeyPing, bestKeySpeed}
 
 var bestBy = bestKeyPing
 
+// tgSort ranks by Telegram RTT instead of endpoint ping; set from -tg-only,
+// when every survivor reached Telegram and reachability alone orders nothing.
+var tgSort bool
+
+func filterByTelegram(ph phaseResult) phaseResult {
+	return filterResults(ph, func(r endpointResult) bool { return r.tgOK })
+}
+
 // Loss before ping, mirroring CloudflareWarpSpeedTest. Unmeasured endpoints
 // carry loss 0, so without -tun-ping this degrades to ping-only ordering.
 func lessByLossRTT(a, b endpointResult) bool {
+	// Telegram outranks every latency metric: a fast endpoint that cannot reach
+	// it is useless to whoever asked for the check. Unchecked results all carry
+	// tgOK false, so without the check this changes nothing.
+	if a.tgOK != b.tgOK {
+		return a.tgOK
+	}
+	if tgSort && a.tgOK && a.tg != b.tg {
+		return a.tg < b.tg
+	}
 	if bestBy == bestKeySpeed && a.speed != b.speed {
 		return a.speed > b.speed // unmeasured is 0, so it sinks
 	}

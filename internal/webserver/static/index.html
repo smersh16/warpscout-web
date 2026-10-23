@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WarpScout</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="brand"><span class="logo">☁</span> WarpScout</div>
+  <nav id="tabs">
+    <button data-tab="scan" class="active" data-i18n="tab_scan"></button>
+    <button data-tab="tools" data-i18n="tab_tools"></button>
+    <button data-tab="history" data-i18n="tab_history"></button>
+    <button data-tab="account" data-i18n="tab_account"></button>
+  </nav>
+  <div class="spacer"></div>
+  <select id="lang" aria-label="language"><option value="ru">RU</option><option value="en">EN</option></select>
+  <button id="logout" class="ghost" hidden data-i18n="logout"></button>
+</header>
+
+<main>
+  <div id="notice" class="notice" hidden></div>
+
+  <section id="op-panel" class="card" hidden>
+    <div class="row">
+      <strong id="op-title"></strong>
+      <span id="op-phase" class="muted"></span>
+      <div class="spacer"></div>
+      <button id="op-cancel" class="danger" data-i18n="cancel"></button>
+    </div>
+    <progress id="op-progress" max="100" value="0"></progress>
+    <div id="op-message" class="muted small"></div>
+  </section>
+
+  <!-- SCAN -->
+  <section id="tab-scan" class="tab">
+    <div class="card">
+      <h2 data-i18n="scan_title"></h2>
+      <div class="grid">
+        <label><span data-i18n="preset"></span>
+          <select id="preset">
+            <option value="standard" data-i18n="preset_standard"></option>
+            <option value="durable" data-i18n="preset_durable"></option>
+            <option value="full" data-i18n="preset_full"></option>
+          </select>
+          <small id="preset-hint" class="muted"></small>
+        </label>
+        <label><span data-i18n="protocol"></span>
+          <select id="protocol">
+            <option value="awg">AmneziaWG</option>
+            <option value="wg">WireGuard</option>
+            <option value="masque">MASQUE H3</option>
+            <option value="masque-h2">MASQUE H2</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" id="ipv6"> IPv6</label>
+        <label class="check"><input type="checkbox" id="telegram"> <span data-i18n="tg_check"></span></label>
+        <label class="check"><input type="checkbox" id="telegramOnly"> <span data-i18n="tg_only"></span></label>
+        <label class="check"><input type="checkbox" id="expert"> <span data-i18n="expert"></span></label>
+      </div>
+      <div id="expert-box" hidden>
+        <div class="grid">
+          <label><span data-i18n="inner_protocol"></span>
+            <select id="innerProtocol"><option value="wg">WireGuard</option><option value="awg">AmneziaWG</option><option value="masque">MASQUE H3</option><option value="masque-h2">MASQUE H2</option></select>
+          </label>
+          <label><span data-i18n="through"></span><input id="throughEndpoint" placeholder="ip:port" autocomplete="off"></label>
+          <label>Port<input id="port" type="number" min="0" max="65535" value="0"></label>
+          <label><span data-i18n="timeout"></span><input id="timeoutSec" type="number" min="1" value="2"></label>
+          <label><span data-i18n="jobs"></span><input id="jobs" type="number" min="1" value="10"></label>
+          <label><span data-i18n="tunnel_pings"></span><input id="tunnelPingCount" type="number" min="0" value="0"></label>
+          <label>MTU<input id="mtu" type="number" min="0" value="0"></label>
+          <label>DNS<input id="dns" placeholder="1.1.1.1, 1.0.0.1" autocomplete="off"></label>
+          <label><span data-i18n="custom_target"></span><input id="customTarget" placeholder="CIDR / IP" autocomplete="off"></label>
+          <label><span data-i18n="ping_target"></span><input id="pingTarget" placeholder="1.1.1.1" autocomplete="off"></label>
+          <label><span data-i18n="include_countries"></span><input id="includeCountries" placeholder="NL, DE" autocomplete="off"></label>
+          <label><span data-i18n="include_nodes"></span><input id="includeNodes" placeholder="AMS, FRA" autocomplete="off"></label>
+          <label><span data-i18n="exclude_countries"></span><input id="excludeCountries" placeholder="RU" autocomplete="off"></label>
+          <label><span data-i18n="exclude_nodes"></span><input id="excludeNodes" placeholder="DME" autocomplete="off"></label>
+          <label><span data-i18n="best_by"></span>
+            <select id="bestBy"><option value="ping">ping</option><option value="speed">speed</option></select>
+          </label>
+          <label><span data-i18n="sweep_ports"></span>
+            <select id="sweepPorts"><option value="">—</option><option value="open">open</option><option value="all">all</option></select>
+          </label>
+          <label>AWG junk count<input id="awgJunkCount" type="number" min="0" value="0"></label>
+          <label>AWG junk min<input id="awgJunkMin" type="number" min="0" value="0"></label>
+          <label>AWG junk max<input id="awgJunkMax" type="number" min="0" value="0"></label>
+          <label class="check"><input type="checkbox" id="awgAutoI1" checked> AWG auto I1</label>
+          <label>AWG I1<input id="awgI1" autocomplete="off"></label>
+          <label>MASQUE SNI<input id="masqueSni" autocomplete="off"></label>
+          <label class="check"><input type="checkbox" id="speedTest"> <span data-i18n="speed_test"></span></label>
+        </div>
+      </div>
+      <div class="row"><button id="scan-start" class="primary" data-i18n="scan_start"></button></div>
+    </div>
+    <div id="results-card" class="card" hidden>
+      <div class="row">
+        <h2 data-i18n="results"></h2>
+        <span id="results-meta" class="muted small"></span>
+        <div class="spacer"></div>
+        <label class="check inline"><input type="checkbox" id="flags"> <span data-i18n="flags"></span></label>
+        <button id="best-btn" class="ghost" data-i18n="copy_best" hidden></button>
+        <button id="csv-btn" class="ghost" data-i18n="csv" hidden></button>
+        <button id="report-btn" class="ghost" data-i18n="text_report" hidden></button>
+      </div>
+      <p id="tg-hint" class="muted small" data-i18n="tg_hint" hidden></p>
+      <div class="table-wrap"><table id="results">
+        <thead><tr>
+          <th>#</th><th data-i18n="col_endpoint"></th><th data-i18n="col_status"></th><th data-i18n="col_place"></th>
+          <th>Ping</th><th>Tunnel</th><th>Loss</th><th>Mbps</th><th class="tg-col">Telegram</th><th></th>
+        </tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- TOOLS -->
+  <section id="tab-tools" class="tab" hidden>
+    <div class="card">
+      <h2 data-i18n="tool_junk"></h2>
+      <p class="muted small" data-i18n="tool_junk_hint"></p>
+      <button id="junk-start" class="primary" data-i18n="run"></button>
+      <div id="junk-saved" hidden>
+        <p class="muted small" id="junk-saved-meta"></p>
+        <pre id="junk-result" class="result"></pre>
+        <button id="junk-apply" class="ghost" data-i18n="apply_to_scan"></button>
+      </div>
+    </div>
+    <div class="card">
+      <h2 data-i18n="tool_sni"></h2>
+      <p class="muted small" data-i18n="tool_sni_hint"></p>
+      <div class="grid"><label><span data-i18n="protocol"></span>
+        <select id="sni-protocol"><option value="masque">MASQUE H3</option><option value="masque-h2">MASQUE H2</option></select></label></div>
+      <button id="sni-start" class="primary" data-i18n="run"></button>
+      <div id="sni-saved" hidden>
+        <p class="muted small" id="sni-saved-meta"></p>
+        <pre id="sni-result" class="result"></pre>
+        <button id="sni-apply" class="ghost" data-i18n="apply_to_scan"></button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>SOCKS5</h2>
+      <p class="muted small" data-i18n="socks_hint"></p>
+      <div class="grid">
+        <label>Endpoint<input id="socks-endpoint" placeholder="162.159.192.1:2408" autocomplete="off"></label>
+        <label>Port<input id="socks-port" type="number" min="1" max="65535" value="1080"></label>
+        <label><span data-i18n="protocol"></span>
+          <select id="socks-protocol"><option value="awg">AmneziaWG</option><option value="wg">WireGuard</option><option value="masque">MASQUE H3</option><option value="masque-h2">MASQUE H2</option></select></label>
+      </div>
+      <button id="socks-start" class="primary" data-i18n="socks_start"></button>
+      <div id="socks-status" class="muted small"></div>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="tab-history" class="tab" hidden>
+    <div class="card">
+      <div class="row"><h2 data-i18n="tab_history"></h2><div class="spacer"></div>
+        <button id="history-clear" class="ghost danger-text" data-i18n="clear"></button></div>
+      <div id="history-empty" class="muted" data-i18n="history_empty" hidden></div>
+      <div class="table-wrap"><table id="history"><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- ACCOUNT -->
+  <section id="tab-account" class="tab" hidden>
+    <div class="card">
+      <h2 data-i18n="tab_account"></h2>
+      <p id="account-status"></p>
+      <div class="grid">
+        <label class="check"><input type="checkbox" id="reg-fresh"> <span data-i18n="reg_fresh"></span></label>
+        <label>Proxy<input id="reg-proxy" placeholder="socks5://host:port" autocomplete="off"></label>
+        <label><span data-i18n="reg_timeout"></span><input id="reg-timeout" type="number" min="1" value="5"></label>
+      </div>
+      <div class="row">
+        <button id="register" class="primary" data-i18n="register"></button>
+        <button id="account-export" class="ghost" data-i18n="export"></button>
+        <button id="account-delete" class="ghost danger-text" data-i18n="delete"></button>
+      </div>
+      <h3 data-i18n="import_account"></h3>
+      <textarea id="account-import" rows="5" placeholder='{"private_key": "...", ...}' spellcheck="false"></textarea>
+      <button id="account-import-btn" class="ghost" data-i18n="import"></button>
+    </div>
+  </section>
+</main>
+
+<div id="login" class="overlay" hidden>
+  <form class="card login-card" id="login-form">
+    <h2>WarpScout</h2>
+    <p class="muted small" data-i18n="login_hint"></p>
+    <input id="login-token" type="password" placeholder="token" autocomplete="current-password" required>
+    <div id="login-error" class="error small" hidden></div>
+    <button class="primary" data-i18n="login"></button>
+  </form>
+</div>
+
+<div id="modal" class="overlay" hidden>
+  <div class="card modal-card">
+    <div class="row"><strong id="modal-title"></strong><div class="spacer"></div>
+      <select id="modal-format" hidden>
+        <option value="wireguard">WireGuard</option><option value="amneziawg">AmneziaWG</option>
+        <option value="usque">usque</option><option value="mihomo">Mihomo</option></select>
+      <button id="modal-close" class="ghost">✕</button></div>
+    <pre id="modal-body" class="result"></pre>
+    <div class="row"><button id="modal-copy" class="ghost" data-i18n="copy"></button>
+      <button id="modal-download" class="ghost" data-i18n="download"></button></div>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

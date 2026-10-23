@@ -1,0 +1,7 @@
+# HTTPS reverse proxy in front of WarpScout (automatic Let's Encrypt certificate).
+# Set LISTEN=127.0.0.1:8787 in /etc/warpscout-web.env first.
+warp.example.com {
+	reverse_proxy 127.0.0.1:8787 {
+		flush_interval -1   # keep server-sent events (live progress) unbuffered
+	}
+}
