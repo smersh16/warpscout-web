@@ -27,7 +27,7 @@ works through a given endpoint.
 ### Docker
 
 ```bash
-git clone <this repository URL> warpscout-web && cd warpscout-web
+git clone https://github.com/smersh16/warpscout-web warpscout-web && cd warpscout-web
 echo "WARPSCOUT_TOKEN=$(openssl rand -hex 24)" > .env
 docker compose up -d --build
 ```
@@ -104,5 +104,5 @@ This tool selects Cloudflare WARP endpoints. Use it in accordance with Cloudflar
 
 ## License
 
-MIT, see [LICENSE](LICENSE). The copyright notices of the source projects are kept; this repository's own additions are
+MIT, see [LICENSE](LICENSE): the original project's copyright notice (Nikita S.) is kept and the owner of this repository is added; this repository's own additions are
 distributed under the same terms.

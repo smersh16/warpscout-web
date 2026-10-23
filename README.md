@@ -27,7 +27,7 @@
 ### Docker
 
 ```bash
-git clone <URL этого репозитория> warpscout-web && cd warpscout-web
+git clone https://github.com/smersh16/warpscout-web warpscout-web && cd warpscout-web
 echo "WARPSCOUT_TOKEN=$(openssl rand -hex 24)" > .env
 docker compose up -d --build
 ```
@@ -113,5 +113,5 @@ Android-приложение, на котором основана эта обо
 
 ## Лицензия
 
-MIT, см. [LICENSE](LICENSE). Уведомление об авторских правах исходных проектов сохранено; собственные дополнения этого репозитория
+MIT, см. [LICENSE](LICENSE): уведомление об авторских правах оригинального проекта (Nikita S.) сохранено, добавлено имя владельца этого репозитория; собственные дополнения этого репозитория
 распространяются на тех же условиях.

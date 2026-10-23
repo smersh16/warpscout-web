@@ -7,7 +7,7 @@ HTTP-сервер со встроенным веб-интерфейсом (`cmd/
 ## Установка (Ubuntu 22.04+)
 
 ```bash
-git clone <URL этого репозитория> warpscout-web && cd warpscout-web
+git clone https://github.com/smersh16/warpscout-web warpscout-web && cd warpscout-web
 sudo ./deploy/ubuntu/install.sh          # по умолчанию слушает только 127.0.0.1:8787
 # внешний доступ: sudo LISTEN=0.0.0.0:8787 TOKEN=мой-токен ./deploy/ubuntu/install.sh
 ```
