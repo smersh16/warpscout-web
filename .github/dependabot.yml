@@ -4,11 +4,16 @@ updates:
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
+      interval: "monthly"
+    open-pull-requests-limit: 3
     commit-message:
       prefix: "chore(deps)"
+    # The tunnel/protocol libraries break the build and the wire behaviour on
+    # major jumps (amneziawg-go 0.2 -> 1.0 did). Update them by hand, together
+    # with a real scan on a live network.
+    ignore:
+      - dependency-name: "github.com/amnezia-vpn/amneziawg-go"
+      - dependency-name: "github.com/Diniboy1123/usque"
     groups:
       go-minor-and-patch:
         patterns: ["*"]
@@ -17,9 +22,8 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "wednesday"
-    open-pull-requests-limit: 5
+      interval: "monthly"
+    open-pull-requests-limit: 3
     commit-message:
       prefix: "chore(deps)"
     groups:
@@ -30,8 +34,7 @@ updates:
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "thursday"
-    open-pull-requests-limit: 5
+      interval: "monthly"
+    open-pull-requests-limit: 3
     commit-message:
       prefix: "chore(deps)"
