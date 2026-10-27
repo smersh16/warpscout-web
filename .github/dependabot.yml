@@ -14,6 +14,8 @@ updates:
     ignore:
       - dependency-name: "github.com/amnezia-vpn/amneziawg-go"
       - dependency-name: "github.com/Diniboy1123/usque"
+      # usque is built against a specific quic-go; bumping it alone breaks the build.
+      - dependency-name: "github.com/quic-go/quic-go"
     groups:
       go-minor-and-patch:
         patterns: ["*"]
