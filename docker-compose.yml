@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.web
-    image: warpscout-web:latest
+    image: ghcr.io/smersh16/warpscout-web:latest
     container_name: warpscout
     restart: unless-stopped
     ports:
