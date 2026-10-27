@@ -86,7 +86,7 @@ go run ./cmd/warpscout-web -listen 127.0.0.1:8787 -no-auth -demo
 
 | Проект | Автор | Что взято | Где в этом репозитории |
 | --- | --- | --- | --- |
-| [vernette/warpscout](https://github.com/vernette/warpscout) | Nikita S. (@vernette) | Исходный движок: регистрация WARP-аккаунта, сканирование, туннели, поиск junk/SNI, генерация конфигов, SOCKS | `internal/warpscout` (база v0.16.0 и точечные правки из master), `main.go` |
+| [vernette/warpscout](https://github.com/vernette/warpscout) | Nikita S. (@vernette) | Исходный движок: регистрация WARP-аккаунта, сканирование, туннели, поиск junk/SNI, генерация конфигов, SOCKS | `internal/warpscout` (база v0.16.1 и точечные правки из master), `main.go` |
 | [openwarpkit/warpscout-android](https://github.com/openwarpkit/warpscout-android) | OpenWarpKit | Основа этого репозитория: оболочка вокруг движка для нескольких клиентов (JSON-протокол, `core`, `mobileapi`, мобильный бэкенд, автоподбор I1) | `core`, `mobileapi`, `internal/warpscout/mobile_backend.go`, `scan_i1.go`, `junk_i1.go` |
 | [niklzz/warpscout-tg](https://github.com/niklzz/warpscout-tg) | niklzz | Идея и код проверки доступности Telegram (MTProto `req_pq_multi` ко всем DC) | `internal/warpscout/telegram.go` |
 

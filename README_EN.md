@@ -77,7 +77,7 @@ and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 | Project | Author | What was taken | Where in this repository |
 | --- | --- | --- | --- |
-| [vernette/warpscout](https://github.com/vernette/warpscout) | Nikita S. (@vernette) | The original engine: WARP account registration, scanning, tunnels, junk/SNI finders, config generation, SOCKS | `internal/warpscout` (v0.16.0 base plus selected fixes from master), `main.go` |
+| [vernette/warpscout](https://github.com/vernette/warpscout) | Nikita S. (@vernette) | The original engine: WARP account registration, scanning, tunnels, junk/SNI finders, config generation, SOCKS | `internal/warpscout` (v0.16.1 base plus selected fixes from master), `main.go` |
 | [openwarpkit/warpscout-android](https://github.com/openwarpkit/warpscout-android) | OpenWarpKit | The base of this repository: a multi-client wrapper around the engine (JSON protocol, `core`, `mobileapi`, mobile backend, automatic I1) | `core`, `mobileapi`, `internal/warpscout/mobile_backend.go`, `scan_i1.go`, `junk_i1.go` |
 | [niklzz/warpscout-tg](https://github.com/niklzz/warpscout-tg) | niklzz | The idea and code of the Telegram reachability check (MTProto `req_pq_multi` to every DC) | `internal/warpscout/telegram.go` |
 

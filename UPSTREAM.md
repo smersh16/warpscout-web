@@ -7,7 +7,7 @@ on purpose: it keeps imports identical to the sources, so their files can be com
 
 | Project | Role here | Recorded base |
 | --- | --- | --- |
-| https://github.com/vernette/warpscout | original engine, `internal/warpscout` (package `main` renamed to `warpscout`) | tag `v0.16.0`, commit `db4ac9ebae8d942191b8e8351f2c3a37a375bd66` |
+| https://github.com/vernette/warpscout | original engine, `internal/warpscout` (package `main` renamed to `warpscout`) | tag `v0.16.1`, commit `9e2ce9570625757ba24b390ad680dccd5e7f2707` (first imported at `v0.16.0`, `db4ac9ebae8d942191b8e8351f2c3a37a375bd66`) |
 | https://github.com/openwarpkit/warpscout-android | base of this repository: `core`, `mobileapi`, `mobile_backend.go`, `scan_i1.go`, `junk_i1.go` | imported unchanged as the first commit of this repository |
 | https://github.com/niklzz/warpscout-tg | Telegram reachability check, `internal/warpscout/telegram.go` | `master`, ported by hand (see below) |
 
@@ -15,7 +15,7 @@ The first commit of this repository is the warpscout-android tree exactly as rec
 
 ## What differs from the sources
 
-- **vernette/warpscout.** After `v0.16.0`, `internal/warpscout/main.go` was aligned with upstream master: `isMihomo` for config-type
+- **vernette/warpscout.** `v0.16.1` is applied: the registration API moved to `api.devices.cloudflare.com` (`register.go`, `masque.go`). After `v0.16.0`, `internal/warpscout/main.go` was aligned with upstream master: `isMihomo` for config-type
   checks, the `-best-by speed` notice and the documented TUI fallback. Apart from the package name, `main.go` matches upstream.
 - **warpscout-android.** The Android app (`android/`), its CI/release workflows and design documents are removed. `core` gained
   `ScanSpec`/`ExpertOptions` (preset rules resolved on the server) and the Telegram options/result; `mobile_backend.go` passes them through.
